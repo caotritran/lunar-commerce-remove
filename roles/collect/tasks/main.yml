@@ -4,12 +4,6 @@
     src: templates/check.sh.j2
     dest: /tmp/check.sh
     mode: 755
-
-- name: copy scrip to remote host
-  template:
-    src: templates/rclone_backup_when_remove.conf
-    dest: /tmp/rclone_backup_when_remove.conf
-    mode: 755
     
 - name: make sure delete file variables
   shell: sudo rm -rf /tmp/variables.txt
