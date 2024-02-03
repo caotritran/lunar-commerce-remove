@@ -6,13 +6,10 @@
     name: nginx
     state: stopped
 
-- name: delete user owner web
-  user:
-    name: '{{ user_domain }}'
-    state: absent
-    remove: yes
-  tags: remove
-  ignore_errors: yes
+- name: stop php8.2-fpm service
+  systemd:
+    name: php8.2-fpm
+    state: stopped
 
 - name: remove folder conatain web
   file:
@@ -67,6 +64,14 @@
 - name: daemon reload
   systemd:
     daemon_reload: true
+  tags: remove
+  ignore_errors: yes
+
+- name: delete user owner web
+  user:
+    name: '{{ user_domain }}'
+    state: absent
+    remove: yes
   tags: remove
   ignore_errors: yes
 
