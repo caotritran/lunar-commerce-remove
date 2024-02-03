@@ -1,0 +1,92 @@
+---
+- include_vars: group_vars/variables.txt
+
+- name: stop nginx service
+  systemd:
+    name: nginx
+    state: stopped
+
+- name: delete user owner web
+  user:
+    name: '{{ user_domain }}'
+    state: absent
+    remove: yes
+  tags: remove
+  ignore_errors: yes
+
+- name: remove folder conatain web
+  file:
+    path: '/home/{{ user_domain }}'
+    state: absent
+  tags: remove
+  ignore_errors: yes
+
+- name: remove file vhost nginx
+  file:
+    path: '/etc/nginx/sites-available/{{ server_name }}.conf'
+    state: absent
+  tags: remove
+  ignore_errors: yes
+
+- name: unlink nginx vhost config
+  shell: sudo unlink /etc/nginx/sites-enabled/{{ server_name }}.conf
+  tags: remove
+  ignore_errors: yes
+
+- name: remove file php-fpm
+  file:
+    path: '/etc/php/8.2/fpm/pool.d/{{ server_name }}.conf'
+    state: absent
+  tags: remove
+  ignore_errors: yes
+
+- name: drop database
+  shell: mysql -e "drop database {{ mysql_database }}"
+  tags: remove
+  ignore_errors: yes
+
+- name: drop user database
+  shell: mysql -e "DROP USER '{{ mysql_user }}'@'localhost';"
+  tags: remove
+  ignore_errors: yes	
+
+- name: stop graceful {{ server_name }}.service
+  systemd:
+    name: {{ server_name }}
+    state: stopped
+  tags: remove
+  ignore_errors: yes
+
+- name: remove {{ server_name }}.service
+  file:
+    path: '/etc/systemd/system/{{ server_name }}.service'
+    state: absent
+  tags: remove
+  ignore_errors: yes
+
+- name: daemon reload
+  systemd:
+    daemon_reload: true
+  tags: remove
+  ignore_errors: yes
+
+- name: remove cron {{ user_domain }}
+  file:
+    path: '/var/spool/cron/crontabs/{{ user_domain }}'
+    state: absent
+  tags: remove
+  ignore_errors: yes
+  
+- name: restart nginx service
+  systemd:
+    name: nginx
+    state: restarted
+  tags: remove
+  ignore_errors: yes
+
+- name: restart php-fpm service
+  systemd:
+    name: php8.2-fpm
+    state: restarted
+  tags: remove
+  ignore_errors: yes
