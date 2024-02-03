@@ -52,12 +52,12 @@
 
 - name: stop graceful {{ server_name }}.service
   systemd:
-    name: {{ server_name }}
+    name: '{{ server_name }}'
     state: stopped
   tags: remove
   ignore_errors: yes
 
-- name: remove {{ server_name }}.service
+- name: remove '{{ server_name }}'.service
   file:
     path: '/etc/systemd/system/{{ server_name }}.service'
     state: absent
@@ -70,7 +70,7 @@
   tags: remove
   ignore_errors: yes
 
-- name: remove cron {{ user_domain }}
+- name: remove cron '{{ user_domain }}'
   file:
     path: '/var/spool/cron/crontabs/{{ user_domain }}'
     state: absent
